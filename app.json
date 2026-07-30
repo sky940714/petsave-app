@@ -32,7 +32,11 @@
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
-        "POST_NOTIFICATIONS"
+        "POST_NOTIFICATIONS",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ],
       "config": {
         "googleMaps": {
@@ -80,10 +84,14 @@
       "reactCompiler": false
     },
     "extra": {
-      "router": {}
+      "router": {},
+      "eas": {
+        "projectId": "89afd84f-3e5b-47de-8ead-2b0536bb05e6"
+      }
     },
     "runtimeVersion": {
       "policy": "appVersion"
-    }
+    },
+    "owner": "jerry94714"
   }
 }
