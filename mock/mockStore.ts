@@ -324,12 +324,13 @@ function transitionCase(token: string | null, caseId: number, toStatus: Status) 
   if (!TRANSITIONS[c.status].includes(toStatus)) badRequest(`無法從「${c.status}」轉換到「${toStatus}」`);
 
   const now = new Date().toISOString();
+  const fromStatus = c.status;
   c.status = toStatus;
   if (toStatus === 'acknowledged') c.acknowledged_at = now;
   if (toStatus === 'in_progress') c.arrived_at = now;
   db.statusHistory.push({
     case_id: caseId,
-    from_status: c.status,
+    from_status: fromStatus,
     to_status: toStatus,
     changed_by: actor.id,
     changed_by_name: actor.full_name,
@@ -537,4 +538,39 @@ export function clockOut(
   };
   db.attendanceRecords.push(record);
   return record;
+}
+
+// ---------- Register / Delete ----------
+
+export function register(input: {
+  full_name: string;
+  email: string;
+  phone?: string;
+  password: string;
+  role: MockUser['role'];
+}) {
+  if (!input.full_name || !input.email || !input.password) badRequest('請填寫所有必填欄位');
+  if (db.users.find((u) => u.email === input.email)) throw new ApiError('此 Email 已��使用', 409);
+  const id = db.nextUserId++;
+  db.users.push({
+    id,
+    email: input.email,
+    phone: input.phone ?? null,
+    password_hash: input.password,
+    full_name: input.full_name,
+    role: input.role,
+    status: 'active',
+    created_at: new Date().toISOString(),
+  });
+  return {
+    token: `mock-${id}`,
+    user: { id, full_name: input.full_name, role: input.role, email: input.email },
+  };
+}
+
+export function deleteAccount(token: string | null) {
+  const user = requireUser(token);
+  const u = db.users.find((x) => x.id === user.id);
+  if (u) u.status = 'inactive';
+  return { message: '帳號已刪除' };
 }

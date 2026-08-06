@@ -8,6 +8,7 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
+  Image,
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../../context/AuthContext';
@@ -178,6 +179,7 @@ export default function CaseDetailScreen() {
           <View style={styles.thumbRow}>
             {caseData.photos.map((p) => (
               <View key={p.id} style={styles.thumbBox}>
+                <Image source={{ uri: p.url }} style={styles.thumbImage} />
                 <Text style={styles.thumbLabel}>
                   {p.category === 'scene' ? '事發地點照' : p.category === 'processing' ? '處理中照' : '三聯單照'}
                 </Text>
@@ -288,7 +290,8 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   thumbRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  thumbBox: { backgroundColor: '#EEE', borderRadius: 10, padding: 8 },
+  thumbBox: { backgroundColor: '#EEE', borderRadius: 10, padding: 8, alignItems: 'center' },
+  thumbImage: { width: 80, height: 80, borderRadius: 8, marginBottom: 4 },
   thumbLabel: { fontSize: 11, color: '#3D3635' },
   historyRow: { paddingVertical: 4, borderTopWidth: 1, borderTopColor: '#EEE' },
   historyText: { fontSize: 12, color: '#666' },

@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { usePolling } from '../../hooks/usePolling';
 import { apiFetch } from '../../utils/api';
 import { ENDPOINTS } from '../../constants/Config';
+import { deleteAccount } from '../../mock/mockStore';
 import { Case, Vehicle } from '../../types/case';
 import { CaseStatus, STATUS_LABELS } from '../../constants/caseStatus';
 import CaseCard from '../../components/CaseCard';
@@ -69,6 +70,30 @@ const SIMULATED_REPORTS = [
 export default function DispatcherHome() {
   const router = useRouter();
   const { token, logout } = useAuth();
+
+  const handleLogoutMenu = () => {
+    Alert.alert('帳號選項 Account', '', [
+      { text: '登出 Sign Out', onPress: logout },
+      {
+        text: '刪除帳號 Delete Account',
+        style: 'destructive',
+        onPress: () =>
+          Alert.alert('確認刪除帳號？', '此操作無法復原。\nThis cannot be undone.', [
+            { text: '取消', style: 'cancel' },
+            {
+              text: '確認刪除',
+              style: 'destructive',
+              onPress: async () => {
+                deleteAccount(token);
+                await logout();
+                router.replace('/login' as any);
+              },
+            },
+          ]),
+      },
+      { text: '取消 Cancel', style: 'cancel' },
+    ]);
+  };
   const [filter, setFilter] = useState<CaseStatus | 'all'>('all');
   const [showSimulation, setShowSimulation] = useState(false);
   const [showTour, setShowTour] = useState(false);
@@ -155,7 +180,7 @@ export default function DispatcherHome() {
           <CalendarDays size={18} color="#3D3635" />
           <Text style={styles.navButtonText}>班表管理</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={logout}>
+        <TouchableOpacity style={styles.navButton} onPress={handleLogoutMenu}>
           <LogOut size={18} color="#B15B3E" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => setShowTour(true)}>

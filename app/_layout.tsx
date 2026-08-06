@@ -4,8 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Notifications from 'expo-notifications';
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import { GuidedDemoProvider } from '../context/GuidedDemoContext';
 import { usePushRegistration } from '../hooks/usePushRegistration';
 import { View, ActivityIndicator } from 'react-native';
+import GuidedDemoFlow from '../components/GuidedDemoFlow';
 
 function RootNavigator() {
   const { loading, user } = useAuth();
@@ -38,14 +40,18 @@ function RootNavigator() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false, gestureEnabled: true }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="login" />
-      <Stack.Screen name="unauthorized" />
-      <Stack.Screen name="(dispatcher)" />
-      <Stack.Screen name="(staff)" />
-      <Stack.Screen name="(admin)" />
-    </Stack>
+    <>
+      <Stack screenOptions={{ headerShown: false, gestureEnabled: true }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="register" />
+        <Stack.Screen name="unauthorized" />
+        <Stack.Screen name="(dispatcher)" />
+        <Stack.Screen name="(staff)" />
+        <Stack.Screen name="(admin)" />
+      </Stack>
+      <GuidedDemoFlow />
+    </>
   );
 }
 
@@ -53,8 +59,10 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
-        <StatusBar style="dark" />
-        <RootNavigator />
+        <GuidedDemoProvider>
+          <StatusBar style="dark" />
+          <RootNavigator />
+        </GuidedDemoProvider>
       </AuthProvider>
     </GestureHandlerRootView>
   );

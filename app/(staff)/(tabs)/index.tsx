@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Alert } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
@@ -59,6 +60,7 @@ const EXPERIENCE_REPORTS = [
 export default function StaffCasesTab() {
   const router = useRouter();
   const { token, user } = useAuth();
+  const insets = useSafeAreaInsets();
   const [mapExpanded, setMapExpanded] = useState(false);
   const [filter, setFilter] = useState<ListFilter>('shift');
   const [experiencing, setExperiencing] = useState(false);
@@ -182,7 +184,7 @@ export default function StaffCasesTab() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]}>
       <View style={styles.headlineRow}>
         <View style={{ flex: 1 }}>
           <Text style={styles.headline}>{activeCase ? '您有進行中的案件' : '目前待命中'}</Text>
@@ -240,7 +242,7 @@ export default function StaffCasesTab() {
       </TouchableOpacity>
 
       <Modal visible={mapExpanded} animationType="slide">
-        <View style={styles.modalContainer}>
+        <View style={[styles.modalContainer, { paddingTop: insets.top + 16 }]}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>案件分布地圖</Text>
             <TouchableOpacity onPress={() => setMapExpanded(false)}>
@@ -266,7 +268,7 @@ export default function StaffCasesTab() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  content: { padding: 20, paddingTop: 60, paddingBottom: 140, gap: 6 },
+  content: { padding: 20, paddingBottom: 140, gap: 6 },
   headlineRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   headline: { fontSize: 28, fontWeight: '900', color: '#3D3635' },
   subheadline: { fontSize: 14, color: '#999', marginTop: 6, marginBottom: 16, fontWeight: '600' },
@@ -329,7 +331,7 @@ const styles = StyleSheet.create({
   },
   ctaBtnDisabled: { backgroundColor: '#CCC' },
   ctaText: { color: '#fff', fontWeight: '900', fontSize: 16 },
-  modalContainer: { flex: 1, backgroundColor: '#fff', paddingTop: 60, paddingHorizontal: 16 },
+  modalContainer: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 16 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   modalTitle: { fontSize: 17, fontWeight: '900', color: '#3D3635' },
 });

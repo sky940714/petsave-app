@@ -12,7 +12,7 @@ export default function Index() {
     case 'dispatcher':
       return <Redirect href="/(dispatcher)" />;
     case 'field_staff':
-      return <Redirect href="/(staff)" />;
+      return <Redirect href={'/(staff)' as any} />;
     case 'admin':
       return <Redirect href={'/(admin)' as any} />;
     default:

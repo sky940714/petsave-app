@@ -1,16 +1,44 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
-import { UserCircle2, LogOut, Clock, Camera } from 'lucide-react-native';
+import { UserCircle2, LogOut, Clock, Camera, Trash2 } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../../context/AuthContext';
 import { apiFetch } from '../../../utils/api';
 import { ENDPOINTS } from '../../../constants/Config';
 import { AttendanceRecord } from '../../../types/case';
 import { formatDateTime } from '../../../utils/time';
+import { deleteAccount } from '../../../mock/mockStore';
 
 export default function StaffProfileTab() {
   const { user, token, logout } = useAuth();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      '刪除帳號 / Delete Account',
+      '確定要刪除帳號嗎？此操作無法復原。\nAre you sure? This cannot be undone.',
+      [
+        { text: '取消 Cancel', style: 'cancel' },
+        {
+          text: '確認刪除 Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              deleteAccount(token);
+              await logout();
+              router.replace('/login' as any);
+            } catch (e: any) {
+              Alert.alert('刪除失敗', e.message || '請稍後再試');
+            }
+          },
+        },
+      ]
+    );
+  };
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [punching, setPunching] = useState(false);
@@ -64,7 +92,7 @@ export default function StaffProfileTab() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]}>
       <View style={styles.profileCard}>
         <View style={styles.avatar}>
           <UserCircle2 size={40} color="#fff" />
@@ -122,7 +150,12 @@ export default function StaffProfileTab() {
 
       <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
         <LogOut size={18} color="#B15B3E" />
-        <Text style={styles.logoutText}>登出</Text>
+        <Text style={styles.logoutText}>登出 / Sign Out</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteAccount}>
+        <Trash2 size={16} color="#999" />
+        <Text style={styles.deleteText}>刪除帳號 / Delete Account</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -130,7 +163,7 @@ export default function StaffProfileTab() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  content: { padding: 20, paddingTop: 60, paddingBottom: 140, gap: 16 },
+  content: { padding: 20, paddingBottom: 140, gap: 16 },
   profileCard: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   avatar: {
     width: 64,
@@ -202,4 +235,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   logoutText: { color: '#B15B3E', fontWeight: '800' },
+  deleteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+  },
+  deleteText: { color: '#CCC', fontSize: 12, fontWeight: '600' },
 });

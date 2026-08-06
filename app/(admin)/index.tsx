@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ClipboardList, Truck, CalendarDays, Users, LogOut } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
+import { deleteAccount } from '../../mock/mockStore';
 import { usePolling } from '../../hooks/usePolling';
 import { apiFetch } from '../../utils/api';
 import { ENDPOINTS } from '../../constants/Config';
@@ -17,6 +19,31 @@ function isToday(isoString: string) {
 export default function AdminDashboard() {
   const router = useRouter();
   const { logout, token } = useAuth();
+  const insets = useSafeAreaInsets();
+
+  const handleLogoutMenu = () => {
+    Alert.alert('帳號選項 Account', '', [
+      { text: '登出 Sign Out', onPress: logout },
+      {
+        text: '刪除帳號 Delete Account',
+        style: 'destructive',
+        onPress: () =>
+          Alert.alert('確認刪除帳號？', '此操作無法復原。\nThis cannot be undone.', [
+            { text: '取消', style: 'cancel' },
+            {
+              text: '確認刪除',
+              style: 'destructive',
+              onPress: async () => {
+                deleteAccount(token);
+                await logout();
+                router.replace('/login' as any);
+              },
+            },
+          ]),
+      },
+      { text: '取消 Cancel', style: 'cancel' },
+    ]);
+  };
 
   const { data: cases, loading } = usePolling<Case[]>(() => apiFetch<Case[]>(ENDPOINTS.CASES, token), [token]);
   const { data: exceptionReasons } = usePolling<ExceptionReason[]>(
@@ -38,10 +65,10 @@ export default function AdminDashboard() {
   }, [cases, exceptionReasons]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]}>
       <View style={styles.headerRow}>
         <Text style={styles.headline}>管理總覽</Text>
-        <TouchableOpacity onPress={logout}>
+        <TouchableOpacity onPress={handleLogoutMenu}>
           <LogOut size={20} color="#B15B3E" />
         </TouchableOpacity>
       </View>
@@ -92,7 +119,7 @@ export default function AdminDashboard() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  content: { padding: 20, paddingTop: 60, paddingBottom: 60, gap: 8 },
+  content: { padding: 20, paddingBottom: 60, gap: 8 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   headline: { fontSize: 26, fontWeight: '900', color: '#3D3635' },
   statsRow: { flexDirection: 'row', gap: 10 },
