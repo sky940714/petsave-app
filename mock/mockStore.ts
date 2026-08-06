@@ -550,7 +550,7 @@ export function register(input: {
   role: MockUser['role'];
 }) {
   if (!input.full_name || !input.email || !input.password) badRequest('請填寫所有必填欄位');
-  if (db.users.find((u) => u.email === input.email)) throw new ApiError('此 Email 已��使用', 409);
+  if (db.users.find((u) => u.email === input.email)) throw new ApiError('此 Email 已被使用', 409);
   const id = db.nextUserId++;
   db.users.push({
     id,
