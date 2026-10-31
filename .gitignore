@@ -37,3 +37,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Vercel local project settings
+.vercel/
